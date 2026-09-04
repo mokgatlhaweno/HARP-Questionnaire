@@ -1,0 +1,655 @@
+Here is an HTML document that implements the research philosophy questionnaire with a downloadable, timestamped text report of all responses after completion.
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>HARP Research Philosophy | Auto-report + Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f9 0%, #d9e2ef 100%);
+            font-family: 'Inter', system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: #1a2c3e;
+        }
+
+        .app-container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(2px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c4c 0%, #2b5c6f 100%);
+            padding: 1.5rem 2rem;
+            color: white;
+            border-bottom: 4px solid #ffbf69;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            background: rgba(255,255,240,0.2);
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+
+        .sub {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 8px;
+            border-left: 3px solid #ffbf69;
+            padding-left: 12px;
+        }
+
+        .progress-section {
+            padding: 1rem 2rem;
+            background: #fefcf5;
+            border-bottom: 1px solid #ede7db;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2b5c6f;
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 50px;
+            height: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #3b8ea5, #ffbf69);
+            width: 0%;
+            height: 100%;
+            border-radius: 50px;
+            transition: width 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .question-area {
+            padding: 2rem 2rem 1.5rem 2rem;
+            min-height: 400px;
+            transition: all 0.2s;
+        }
+
+        .question-card {
+            animation: fadeSlide 0.4s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateX(18px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .q-text {
+            font-size: 1.55rem;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 2rem;
+            background: #f9f7f0;
+            padding: 1rem 1.2rem;
+            border-radius: 28px;
+            border-left: 8px solid #ffbf69;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            color: #1e2f3a;
+        }
+
+        .likert-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .likert-option {
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+            background: white;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+            border: 1px solid #dee4e9;
+            cursor: pointer;
+        }
+
+        .likert-option:hover {
+            background: #fff4e6;
+            transform: translateY(-3px);
+            border-color: #ffbf69;
+            box-shadow: 0 8px 15px -10px rgba(0,0,0,0.2);
+        }
+
+        .likert-option input { display: none; }
+
+        .likert-option label {
+            display: block;
+            padding: 10px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: 0.1s;
+            color: #2c3e44;
+        }
+
+        .likert-option.selected {
+            background: #2b5c6f;
+            border-color: #2b5c6f;
+            box-shadow: 0 6px 12px rgba(43,92,111,0.25);
+        }
+
+        .likert-option.selected label { color: white; }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.8rem;
+            border-radius: 60px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            background: #e9edf2;
+            color: #1e3c4c;
+        }
+
+        .btn-primary { background: #ffbf69; color: #1e3c4c; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-primary:hover { background: #f5b04b; transform: scale(0.97); }
+        .btn-outline { background: transparent; border: 1px solid #cbd5e1; }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        .report-container {
+            padding: 2rem;
+            animation: fadeSlide 0.5s ease;
+        }
+
+        .philosophy-card {
+            background: #ffffffdb;
+            backdrop-filter: blur(2px);
+            border-radius: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            border-left: 6px solid;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+
+        .score-badge {
+            font-weight: 800;
+            font-size: 1.8rem;
+            display: inline-block;
+            background: #f2eee5;
+            padding: 0.2rem 0.9rem;
+            border-radius: 60px;
+        }
+
+        .winner-badge {
+            background: #ffbf69;
+            color: #1e2f2f;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 12px;
+        }
+
+        hr { margin: 1rem 0; border-color: #e2ddd0; }
+        .reflection-note {
+            background: #f0f4f9;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            background: #f4f0e7;
+            padding: 1rem 2rem;
+            font-size: 0.7rem;
+            color: #5e6b73;
+            text-align: center;
+            border-top: 1px solid #e2d9cd;
+        }
+
+        .restart-btn, .download-txt-btn {
+            background: #2b5c6f;
+            color: white;
+            border: none;
+            padding: 0.65rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            margin-right: 1rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .download-txt-btn { background: #3b8ea5; }
+        .download-txt-btn:hover { background: #2c6f85; }
+        .restart-btn:hover { background: #1e4656; }
+        .button-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+
+        @media (max-width: 720px) {
+            .likert-grid { gap: 6px; }
+            .likert-option label { font-size: 0.7rem; padding: 8px 4px; }
+            .q-text { font-size: 1.2rem; }
+            .question-area { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">
+    <div class="header">
+        <h1>📘 HARP Questionnaire <small>Research Philosophy Self-Assessment</small></h1>
+        <div class="sub">Saunders, Lewis & Thornhill (2019) · Heightening your Awareness of Research Philosophy</div>
+    </div>
+    <div id="dynamicContent">
+        <!-- dynamic area: question view or report -->
+    </div>
+    <div class="footer">
+        <div>© 2019 Saunders, M., Lewis, P. and Thornhill, A. Research Methods for Business Students. 8th ed. London: Prentice Hall. (pp.161-164)</div>
+        <div style="margin-top:6px">HARP Statements — educational use only | Ontological, epistemological, axiological stances + downloadable TXT report</div>
+    </div>
+</div>
+
+<script>
+    // ----- QUESTION BANK (30 items) -----
+    const QUESTIONS = [
+        "Organisations are real, just like physical objects.",
+        "Events in organisations are caused by deeper, underlying mechanisms.",
+        "The social world we inhabit is a world of multiple meanings, interpretations and realities.",
+        "'Organisation' is not a solid and static thing but a flux of collective processes and practices.",
+        "'Real' aspects of organisations are those that impact on organisational practices.",
+        "Organisational research should provide scientific, objective, accurate and valid explanations of how the organisational world really works.",
+        "Theories and concepts never offer completely certain knowledge, but researchers can use rational thought to decide which theories and concepts are better than others.",
+        "Concepts and theories are too simplistic to capture the full richness of the world.",
+        "What generally counts as 'real', 'true' and 'valid' is determined by politically dominant points of view.",
+        "Acceptable knowledge is that which enables things to be done successfully.",
+        "Researchers' values and beliefs must be excluded from the research.",
+        "Researchers must try to be as objective and realistic as they can.",
+        "Researchers' values and beliefs are key to their interpretations of the social world.",
+        "Researchers should openly and critically discuss their own values and beliefs.",
+        "Research shapes and is shaped by what the researcher believes and doubts.",
+        "The purpose of research is to discover facts and regularities, and predict future events.",
+        "The purpose of organisational research is to offer an explanation of how and why organisations and societies are structured.",
+        "The purpose of research is to create new understandings that allow people to see the world in new ways.",
+        "The purpose of research is to examine and question the power relations that sustain conventional thinking and practices.",
+        "The purpose of research is to solve problems and improve future practice.",
+        "Things that cannot be measured have no meaning for the purposes of research.",
+        "Organisational theories and findings should be evaluated in terms of their explanatory power of the causes of organisational behaviour.",
+        "To be meaningful, research must include participants' own interpretations of their experiences, as well as researchers' interpretations.",
+        "Absences and silences in the world around us are at least as important as what is prominent and obvious.",
+        "Meaning emerges out of our practical, experimental and critical engagement with the world.",
+        "Human behaviour is determined by natural forces.",
+        "People's choices and actions are always limited by the social norms, rules and traditions in which they are located.",
+        "Individuals' meaning-making is always specific to their experiences, culture and history.",
+        "Structure, order and form are human constructions.",
+        "People can use routines and customs creatively to instigate innovation and change."
+    ];
+
+    // Options mapping: label -> code (for txt report short codes: SA, A, ShA, ShD, D, SD)
+    const OPTIONS = [
+        { code: 'SA', label: 'Strongly Agree', points: 3, short: 'SA' },
+        { code: 'A', label: 'Agree', points: 2, short: 'A' },
+        { code: 'ShA', label: 'Slightly Agree', points: 1, short: 'ShA' },
+        { code: 'ShD', label: 'Slightly Disagree', points: -1, short: 'ShD' },
+        { code: 'D', label: 'Disagree', points: -2, short: 'D' },
+        { code: 'SD', label: 'Strongly Disagree', points: -3, short: 'SD' }
+    ];
+
+    // Philosophy mapping (each philosophy -> array of question indices 0-based)
+    const PHILOSOPHIES = {
+        "Positivism": [0, 5, 10, 15, 20, 25],      // Q1,6,11,16,21,26
+        "Postmodernism": [3, 8, 13, 18, 23, 28],   // Q4,9,14,19,24,29
+        "Critical Realism": [1, 6, 11, 16, 21, 26],// Q2,7,12,17,22,27
+        "Pragmatism": [4, 9, 14, 19, 24, 29],      // Q5,10,15,20,25,30
+        "Interpretivism": [2, 7, 12, 17, 22, 27]   // Q3,8,13,18,23,28
+    };
+
+    const PHILOSOPHY_NOTES = {
+        "Positivism": "🔬 Views reality as objective & tangible; emphasizes observable facts, causality, and value-free knowledge. Favours measurement and prediction.",
+        "Postmodernism": "🌀 Challenges dominant narratives; reality is fragmented, shaped by power & language. Focus on deconstruction, silences, multiplicity.",
+        "Critical Realism": "⚙️ Recognises real structures beneath events; seeks causal mechanisms. Combines objective reality with interpretive understanding.",
+        "Pragmatism": "🛠️ Knowledge is what works practically; truth is actionable. Research is problem-solving, mixing methods as needed.",
+        "Interpretivism": "💡 Social world is constructed through meanings and subjective experience; emphasizes rich, contextual understanding."
+    };
+
+    // ----- GLOBAL STATE -----
+    let answers = new Array(30).fill(null);      // stores { points, shortCode } per question
+    let currentIndex = 0;
+    let totalQuestions = 30;
+    let isReportMode = false;
+
+    const appDynamic = document.getElementById('dynamicContent');
+
+    // Helper: get short code by points (fallback)
+    function getShortCodeFromPoints(points) {
+        let opt = OPTIONS.find(o => o.points === points);
+        return opt ? opt.short : "?";
+    }
+
+    // Save answer for current question (points and short code)
+    function saveAnswer(points) {
+        if (isReportMode) return;
+        const shortCode = getShortCodeFromPoints(points);
+        answers[currentIndex] = { points: points, shortCode: shortCode };
+        
+        // auto-advance
+        if (currentIndex < totalQuestions - 1) {
+            currentIndex++;
+            renderQuestionView();
+        } else if (currentIndex === totalQuestions - 1) {
+            // last question completed, go to report
+            if (answers.every(a => a !== null)) {
+                showFinalReport();
+            } else {
+                renderQuestionView();
+            }
+        } else {
+            renderQuestionView();
+        }
+    }
+
+    function goPrevious() {
+        if (isReportMode) return;
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestionView();
+        }
+    }
+
+    // Compute philosophy total scores (sum of points)
+    function computeScores() {
+        let scores = {};
+        for (let [ph, indices] of Object.entries(PHILOSOPHIES)) {
+            let total = 0;
+            let allAnswered = true;
+            for (let idx of indices) {
+                if (!answers[idx]) { allAnswered = false; total = null; break; }
+                total += answers[idx].points;
+            }
+            scores[ph] = allAnswered ? total : null;
+        }
+        return scores;
+    }
+
+    function getWinners(scores) {
+        let valid = Object.entries(scores).filter(([_, s]) => s !== null);
+        if (valid.length === 0) return [];
+        let maxScore = Math.max(...valid.map(([_, s]) => s));
+        return valid.filter(([_, s]) => s === maxScore).map(([ph, _]) => ph);
+    }
+
+    // Generate downloadable TXT content: brief format "Q#: ShortCode"
+    function generateTxtReport() {
+        let lines = [];
+        const now = new Date();
+        const timestamp = now.toISOString().slice(0,19).replace(/:/g, '-') + "_" + now.getTime();
+        lines.push(`HARP Questionnaire Report (Saunders et al., 2019)`);
+        lines.push(`Date & Time: ${now.toLocaleString()}`);
+        lines.push(`Timestamp ID: ${timestamp}`);
+        lines.push(`--------------------------------------------------`);
+        lines.push(`RESPONSES (brief format: Q#: SHORTCODE)`);
+        lines.push(`Legend: SA=Strongly Agree, A=Agree, ShA=Slightly Agree, ShD=Slightly Disagree, D=Disagree, SD=Strongly Disagree`);
+        lines.push(`--------------------------------------------------`);
+        for (let i = 0; i < QUESTIONS.length; i++) {
+            const ans = answers[i];
+            const shortCode = ans ? ans.shortCode : "NR";
+            lines.push(`${i+1}: ${shortCode}`);
+        }
+        // add philosophy summary
+        const scores = computeScores();
+        lines.push(`\n--------------------------------------------------`);
+        lines.push(`PHILOSOPHY SCORES (sum of points)`);
+        for (let [ph, score] of Object.entries(scores)) {
+            lines.push(`${ph}: ${score !== null ? score : 'incomplete'}`);
+        }
+        const winners = getWinners(scores);
+        lines.push(`\nDominant Philosophy(s): ${winners.length ? winners.join(', ') : 'N/A'}`);
+        lines.push(`\n-- End of Report --`);
+        return { content: lines.join('\n'), filename: `HARP_report_${timestamp}.txt` };
+    }
+
+    // Trigger download
+    function downloadTxtReport() {
+        const { content, filename } = generateTxtReport();
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    // Render question view
+    function renderQuestionView() {
+        if (isReportMode) return;
+        const qNumber = currentIndex + 1;
+        const questionText = QUESTIONS[currentIndex];
+        const currentAnswer = answers[currentIndex];
+        const selectedPoints = currentAnswer ? currentAnswer.points : null;
+
+        let optionsHtml = '';
+        for (let opt of OPTIONS) {
+            const isSelected = (selectedPoints !== null && selectedPoints === opt.points);
+            const selectedClass = isSelected ? 'selected' : '';
+            optionsHtml += `
+                <div class="likert-option ${selectedClass}" data-points="${opt.points}" data-code="${opt.short}">
+                    <input type="radio" name="q_option" id="opt_${opt.code}" value="${opt.points}" ${isSelected ? 'checked' : ''}>
+                    <label for="opt_${opt.code}">${opt.label}<br><span style="font-size:0.7rem; opacity:0.8;">(${opt.short})</span></label>
+                </div>
+            `;
+        }
+
+        const answeredCount = answers.filter(a => a !== null).length;
+        const percentComplete = (answeredCount / totalQuestions) * 100;
+
+        const html = `
+            <div class="progress-section">
+                <div class="progress-stats">
+                    <span>📋 Question ${qNumber} of ${totalQuestions}</span>
+                    <span>✅ ${answeredCount} answered</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: ${percentComplete}%;"></div>
+                </div>
+            </div>
+            <div class="question-area">
+                <div class="question-card">
+                    <div class="q-text">
+                        <span style="background:#ffbf6922; padding:4px 12px; border-radius:30px; font-size:0.8rem; margin-right:12px;">Q${qNumber}</span>
+                        ${escapeHtml(questionText)}
+                    </div>
+                    <div class="likert-grid" id="likertGrid">
+                        ${optionsHtml}
+                    </div>
+                    <div class="nav-buttons">
+                        <button class="btn btn-outline" id="prevBtn" ${currentIndex === 0 ? 'disabled style="opacity:0.5"' : ''}>← Previous</button>
+                        <span style="font-size:0.75rem; color:#6c7a7f;">✔️ Select answer → auto next</span>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        appDynamic.innerHTML = html;
+
+        // attach likert click events
+        const optionDivs = document.querySelectorAll('.likert-option');
+        optionDivs.forEach(div => {
+            const points = parseInt(div.getAttribute('data-points'));
+            div.addEventListener('click', (e) => {
+                if (isReportMode) return;
+                // update UI
+                optionDivs.forEach(opt => opt.classList.remove('selected'));
+                div.classList.add('selected');
+                const radio = div.querySelector('input');
+                if (radio) radio.checked = true;
+                saveAnswer(points);
+            });
+        });
+
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!isReportMode && currentIndex > 0) goPrevious();
+            });
+        }
+    }
+
+    // Final report with download button and reflection
+    function showFinalReport() {
+        if (answers.some(a => a === null)) {
+            isReportMode = false;
+            renderQuestionView();
+            return;
+        }
+        isReportMode = true;
+        const scores = computeScores();
+        const winners = getWinners(scores);
+        const winnerPrimary = winners.length ? winners.join(', ') : 'No clear winner';
+
+        let scoreHtml = '';
+        for (let [ph, score] of Object.entries(scores)) {
+            const note = PHILOSOPHY_NOTES[ph] || "";
+            const isWinner = winners.includes(ph);
+            const borderColor = isWinner ? '#ffbf69' : '#cbd5e1';
+            scoreHtml += `
+                <div class="philosophy-card" style="border-left-color: ${borderColor};">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap:wrap;">
+                        <h3 style="display:inline-block">📌 ${ph}</h3>
+                        <span class="score-badge">${score !== null ? score : '—'}</span>
+                        ${isWinner ? '<span class="winner-badge">🏆 Highest alignment</span>' : ''}
+                    </div>
+                    <p style="margin-top:12px; font-size:0.9rem; color:#2d4a5c;">${note}</p>
+                </div>
+            `;
+        }
+
+        // Reflection text
+        let reflectionInsights = "";
+        if (winners.length === 1) {
+            reflectionInsights = `✨ Your dominant research philosophy is <strong>${winners[0]}</strong>. This suggests your approach to research aligns strongly with the ontological and epistemological stance of ${winners[0]}. ${PHILOSOPHY_NOTES[winners[0]]} Consider how values, data, and agency shape your inquiry.`;
+        } else if (winners.length > 1) {
+            reflectionInsights = `🔁 You have a close contention between: ${winners.join(', ')}. This indicates a multi-faceted philosophical position — pragmatic integration or critical awareness. Many researchers blend philosophies depending on context.`;
+        } else {
+            reflectionInsights = `📖 Your scores reflect a diverse philosophical palette. Review your answers to clarify consistency. The HARP framework invites reflection on how you perceive reality, knowledge, and values.`;
+        }
+
+        // Find least agreed philosophy
+        let minPh = null, minScore = Infinity;
+        for (let [ph, sc] of Object.entries(scores)) {
+            if (sc !== null && sc < minScore) { minScore = sc; minPh = ph; }
+        }
+        const leastAgreeMsg = minPh ? `You disagree most with <strong>${minPh}</strong> (score: ${minScore}). This philosophy’s core assumptions may contrast with your research instincts.` : '';
+
+        const reportHtml = `
+            <div class="progress-section">
+                <div class="progress-stats">
+                    <span>🎉 Questionnaire Completed</span>
+                    <span>100%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div class="report-container">
+                <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">📊 Your Research Philosophy Profile</h2>
+                <p style="margin-bottom: 1.5rem;">Based on the HARP statements (ontology, epistemology, axiology, purpose, data, structure/agency). Scores range from -18 to +18 per philosophy.</p>
+                ${scoreHtml}
+                <hr />
+                <div class="reflection-note">
+                    <h3>🔍 Reflection & Pointers</h3>
+                    <p>${reflectionInsights}</p>
+                    <p style="margin-top:12px">📌 ${leastAgreeMsg}</p>
+                    <p style="margin-top:12px"><strong>💡 Why these scores matter:</strong> Your philosophical stance influences research design, method choice, and validity criteria. The HARP tool (Saunders et al., 2019) encourages awareness of underlying assumptions.</p>
+                    <p style="margin-top:12px"><em>“Which philosophy do I disagree with the most?”</em> — The lowest score indicates the paradigm that least resonates with your views.</p>
+                </div>
+                <div class="button-group">
+                    <button id="downloadTxtButton" class="download-txt-btn">📥 Download TXT Report (Responses)</button>
+                    <button id="restartButton" class="restart-btn">⟳ Retake Questionnaire</button>
+                </div>
+                <p style="text-align: center; margin-top: 1rem; font-size:0.8rem; color:#4f6f7a;">⬇️ TXT includes each answer in format "Q#: SA/A/ShA/ShD/D/SD" with timestamp.</p>
+            </div>
+        `;
+
+        appDynamic.innerHTML = reportHtml;
+        const downloadBtn = document.getElementById('downloadTxtButton');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', (e) => {
+                downloadTxtReport();
+            });
+        }
+        const restartBtn = document.getElementById('restartButton');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                resetQuestionnaire();
+            });
+        }
+    }
+
+    function resetQuestionnaire() {
+        answers = new Array(30).fill(null);
+        currentIndex = 0;
+        isReportMode = false;
+        renderQuestionView();
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function init() {
+        isReportMode = false;
+        renderQuestionView();
+    }
+
+    init();
+</script>
+</body>
+</html>
+```
